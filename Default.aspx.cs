@@ -41,32 +41,39 @@ public partial class _Default : System.Web.UI.Page
 
             TableHeaderCell thcUserName = new TableHeaderCell();
             thcUserName.Text = v.username;
+            thcUserName.Controls.Add(new LiteralControl(v.username));
 
             TableHeaderCell thcFollowCount = new TableHeaderCell();
-            thcUserName.Text = Convert.ToString(v.followers_count);
+            thcFollowCount.Text = Convert.ToString(v.followers_count);
+            thcFollowCount.Controls.Add(new LiteralControl(Convert.ToString(v.followers_count)));
 
             TableHeaderCell thcURL = new TableHeaderCell();
-            thcUserName.Text = v.permalink;
+            thcURL.Text = v.permalink_url;
+            HyperLink artistHyperlink = new HyperLink();
+            artistHyperlink.Text = v.permalink_url.Substring(22);
+            artistHyperlink.NavigateUrl = v.permalink_url;
+            thcURL.Controls.Add(artistHyperlink);
             //thcUserName.Text = v.permalink.Substring(22);   //22 just to cut out https://www.soundcloud.com
 
             TableHeaderCell thcNumOfReposts = new TableHeaderCell();
-            thcUserName.Text = Convert.ToString(v.reposts_count);
+            thcNumOfReposts.Text = Convert.ToString(v.reposts_count);
+            thcNumOfReposts.Controls.Add(new LiteralControl(Convert.ToString(v.reposts_count)));
 
             TableHeaderCell thcNumOfTracks = new TableHeaderCell();
-            thcUserName.Text = Convert.ToString(v.track_count);
+            thcNumOfTracks.Text = Convert.ToString(v.track_count);
+            thcNumOfTracks.Controls.Add(new LiteralControl(Convert.ToString(v.track_count)));
 
             TableHeaderCell thcURLFullName = new TableHeaderCell();
-            thcUserName.Text = v.full_name;
+            thcURLFullName.Text = v.full_name;
+            thcURLFullName.Controls.Add(new LiteralControl(v.full_name));
 
-            //add them up!
-            TableCellCollection tchc = new TableCellCollection(;
-
-            tchc.Add(thcUserName);
-            tchc.Add(thcFollowCount);
-            tchc.Add(thcURL);
-            tchc.Add(thcNumOfReposts);
-            tchc.Add(thcNumOfTracks);
-            tchc.Add(thcURLFullName);
+            //add em up!
+            tUserRow.Cells.Add(thcUserName);
+            tUserRow.Cells.Add(thcFollowCount);
+            tUserRow.Cells.Add(thcURL);
+            //tUserRow.Cells.Add(thcNumOfReposts);
+            tUserRow.Cells.Add(thcNumOfTracks);
+            tUserRow.Cells.Add(thcURLFullName);
             TableFollowers.Rows.Add(tUserRow);
 
         }
@@ -81,30 +88,36 @@ public partial class _Default : System.Web.UI.Page
         TableRow HeaderRow = new TableRow();
 
         TableHeaderCell thcUserName = new TableHeaderCell();
+        thcUserName.Controls.Add(new LiteralControl("User Name"));
         thcUserName.Text = "User Name";
 
         TableHeaderCell thcFollowCount = new TableHeaderCell();
-        thcUserName.Text = "Followers";
+        thcFollowCount.Controls.Add(new LiteralControl("Followers"));
+        thcFollowCount.Text = "Followers";
 
         TableHeaderCell thcURL = new TableHeaderCell();
-        thcUserName.Text = "URL";
+        thcURL.Controls.Add(new LiteralControl("URL"));
+        thcURL.Text = "URL";
 
         TableHeaderCell thcRepostedTracksCount = new TableHeaderCell();
-        thcUserName.Text = "# Of Reposts";
+        thcRepostedTracksCount.Controls.Add(new LiteralControl("# Of Reposts"));
+        thcRepostedTracksCount.Text = "# Of Reposts";
 
         TableHeaderCell thcTracksCount = new TableHeaderCell();
-        thcUserName.Text = "# Of Tracks";
-    
+        thcTracksCount.Controls.Add(new LiteralControl("# Of Tracks"));
+        thcTracksCount.Text = "# Of Tracks";
+
         TableHeaderCell thcURLFullName = new TableHeaderCell();
-        thcUserName.Text = "Full Name";
+        thcURLFullName.Controls.Add(new LiteralControl("Given Name"));
+        thcURLFullName.Text = "Full Name";
 
         //add em up
         HeaderRow.Cells.Add(thcUserName);
         HeaderRow.Cells.Add(thcFollowCount);
-        HeaderRow.Cells.Add(thcURLFullName);
-        HeaderRow.Cells.Add(thcURLFullName);
-        HeaderRow.Cells.Add(thcRepostedTracksCount);
+        HeaderRow.Cells.Add(thcURL);
+        //HeaderRow.Cells.Add(thcRepostedTracksCount);
         HeaderRow.Cells.Add(thcTracksCount);
+        HeaderRow.Cells.Add(thcURLFullName);
         TableFollowers.Rows.Add(HeaderRow);
     }
 
