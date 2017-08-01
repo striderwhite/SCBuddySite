@@ -8,6 +8,14 @@
  * *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  */
 
 
+/* * * * * * * * * * *  NOTES OF INTEREST * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ *  #1: use System.Diagnostics.Debug.WriteLine() for console output
+ *  #2:
+ *  #3:
+ *  #4:
+ *  
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +31,7 @@ public partial class _Default : System.Web.UI.Page
 {
 
     //hardcoded url to the api call on my soundcloud
-    string followersURL = "https://api-v2.soundcloud.com/users/2751638/followers?offset=1501283655753&limit=200&client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&app_version=1501506273";
+    string followersURL = "https://api-v2.soundcloud.com/users/2751638/followers?offset=1501312799270&limit=200&client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&app_version=1501594219";
 
     //this is what we are getting back as a collection of "users"
     List<Collection> scUserObjects;
@@ -47,13 +55,87 @@ public partial class _Default : System.Web.UI.Page
     /// <param name="e"></param>
     protected void ButtonStart_Click(object sender, EventArgs e)
     {
-        labelInfoID.Text = "searching please wait....";
+        labelInfoID.ForeColor = System.Drawing.Color.Black;
+
+        //validate input is URL (could use better input validation here)
+        Uri uriResult;
+        bool isValidUrl = Uri.TryCreate(TextBoxProfileURL.Text, UriKind.Absolute, out uriResult)
+            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+
+        if(!isValidUrl)
+        {
+            labelInfoID.ForeColor = System.Drawing.Color.Red;
+            labelInfoID.Text = "Invalid URL!";
+            return;
+        }
+
+        //First parse out some of the URL we need to append for later...
+        string urlPartClientIDAppVersion = "";
+        try
+        {
+            urlPartClientIDAppVersion = "&" + TextBoxProfileURL.Text.Split('&')[2];
+        }
+        catch(Exception ex)
+        {
+            labelInfoID.ForeColor = System.Drawing.Color.Red;
+            labelInfoID.Text = "Failed to parse URL information (Text.Split). Was the URL correct? <br><br>" + ex.Message + "<br><br>";
+            return;
+        }
+         
+
 
         //Clear obtained users 
         scUserObjects.Clear();
 
         //Build table header row
         SetUpTable();
+
+
+
+        #region SC Testing code
+        ////************* testing code here **********
+        //var url = "https://soundcloud.com/strider_white/followers";
+        //var webClientFollowers = WebRequest.Create(url) as HttpWebRequest;
+        //webClientFollowers.Method = WebRequestMethods.Http.Get;
+        //webClientFollowers.ContentType = "application/json";
+        //webClientFollowers.UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705";
+        //var response = webClientFollowers.GetResponse() as HttpWebResponse;
+
+        //for (int i = 0; i < response.Headers.Count; i++)
+        //    System.Diagnostics.Debug.WriteLine(response.Headers.GetKey(i) + "-- " + response.Headers.Get(i).ToString());
+
+        //System.Diagnostics.Debug.WriteLine("WAIT");
+
+
+        //foreach (var v in client.ResponseHeaders)
+        //    System.Diagnostics.Debug.WriteLine(v.ToString());
+
+        //System.Diagnostics.Debug.WriteLine("wait");
+
+
+        //make a web request
+        //using (WebClient webClientFollowers = new WebClient())
+        //{
+        //    //set headers 
+        //    webClientFollowers.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+        //    //now download the data from soundcloud
+        //    byte[] scData = webClientFollowers.DownloadData("https://soundcloud.com/strider_white/followers");
+        //    foreach (string s in webClientFollowers.ResponseHeaders)
+        //        System.Diagnostics.Debug.WriteLine(s);
+
+        //    //Dump out all the response headers
+        //    //foreach (var resp in client.ResponseHeaders)
+        //    //{
+        //    //    System.Diagnostics.Debug.WriteLine(resp.ToString());
+        //    //}
+
+        //    System.Diagnostics.Debug.WriteLine("WAIT");
+
+        //}
+
+        #endregion SC Testing code
+
+
 
         //Now do actual api calls
         WebClient client = new WebClient(); 
@@ -64,14 +146,24 @@ public partial class _Default : System.Web.UI.Page
         //Should be looping and jumping to next href until href is null (end of followers list)
          do
          {
-            //Console.WriteLine(hrefNext);
             //DownloadString() does GET on api url
             //Soundcloud is nice enoungh to give us JSON
-            jsonData = client.DownloadString(hrefNext);
+            try
+            {
+                jsonData = client.DownloadString(hrefNext);
+            }
+            catch(Exception ex)
+            {
+                labelInfoID.ForeColor = System.Drawing.Color.Red;
+                labelInfoID.Text = "Failed to download information (client.DownloadString()). Was the URL correct? <br><br>" + ex.Message + "<br><br>";
+                return;
+            }
+           
+
             //Deserailzie JSON into a known mapped object ("RootObject")
             rootJsonObject = JsonConvert.DeserializeObject<RootObject>(jsonData);
             //get next url
-            hrefNext = rootJsonObject.next_href + "&client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&app_version=1501506273";
+            hrefNext = rootJsonObject.next_href + urlPartClientIDAppVersion;
             //add to our collection
             foreach (var b in rootJsonObject.collection)
             {
@@ -79,7 +171,7 @@ public partial class _Default : System.Web.UI.Page
             }
         } while ((rootJsonObject.next_href != null));
 
-        labelInfoID.Text = "Now sorting " + scUserObjects.Count + " followers";
+        //labelInfoID.Text = "Now sorting " + scUserObjects.Count + " followers";
 
         //Now sort the collection based on followers
         scUserObjects.Sort((a, b) => b.followers_count.CompareTo(a.followers_count));
