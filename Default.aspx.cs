@@ -1,4 +1,14 @@
-﻿using System;
+﻿/* *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *   *   *   *   *   *   *   *   *   * 
+ * Class:       Default.aspx.cs
+ * Author(s):   Strider White 
+ * Desc:        This is the backing code page for the Default "main" page. This page makes
+ *              calls to SoundCloud.com API using GET requests to download
+ *              users follower information. From there, it collects the 
+ *              information, and present it in a meaningful mannor.
+ * *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  */
+
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -18,11 +28,23 @@ public partial class _Default : System.Web.UI.Page
     //this is what we are getting back as a collection of "users"
     List<Collection> scUserObjects;
 
+    /// <summary>
+    /// Page load callback
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     protected void Page_Load(object sender, EventArgs e)
     {
         scUserObjects = new List<Collection>();
     }
 
+    /// <summary>
+    /// This button being ths GET calls, keeps looping until we get back
+    /// all the info we want. Right now this is blocking and needs
+    /// to be updated to ASYNC
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     protected void ButtonStart_Click(object sender, EventArgs e)
     {
         labelInfoID.Text = "searching please wait....";
@@ -42,7 +64,7 @@ public partial class _Default : System.Web.UI.Page
         //Should be looping and jumping to next href until href is null (end of followers list)
          do
          {
-            Console.WriteLine(hrefNext);
+            //Console.WriteLine(hrefNext);
             //DownloadString() does GET on api url
             //Soundcloud is nice enoungh to give us JSON
             jsonData = client.DownloadString(hrefNext);
@@ -113,6 +135,10 @@ public partial class _Default : System.Web.UI.Page
 
     }
 
+    /// <summary>
+    /// This just configures the TableFollowers table
+    /// By adding the proper header cells.
+    /// </summary>
     private void SetUpTable()
     {
         TableFollowers.Rows.Clear();
