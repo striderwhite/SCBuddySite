@@ -47,7 +47,7 @@ public partial class _Default : System.Web.UI.Page
     }
 
     /// <summary>
-    /// This button being ths GET calls, keeps looping until we get back
+    /// This button begins the server calls, it keeps looping until we get back
     /// all the info we want. Right now this is blocking and needs
     /// to be updated to ASYNC
     /// </summary>
@@ -55,6 +55,7 @@ public partial class _Default : System.Web.UI.Page
     /// <param name="e"></param>
     protected void ButtonStart_Click(object sender, EventArgs e)
     {
+        //Reeset info color
         labelInfoID.ForeColor = System.Drawing.Color.Black;
 
         //validate input is URL (could use better input validation here)

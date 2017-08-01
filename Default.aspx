@@ -40,6 +40,7 @@
             <div class="col-md-8 text-center topMargin">
                 <asp:Label runat="server" Text="Waiting..." ID="labelInfoID" CssClass="well well-sm"></asp:Label>
                 <br />
+                <br />
             </div>
             <div class="col-md-2">
             </div>
