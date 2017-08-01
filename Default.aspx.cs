@@ -27,15 +27,21 @@ public partial class _Default : System.Web.UI.Page
 
 
         //XmlSerializer xmlSerializer = new XmlSerializer(rootJsonObject.GetType());
+
+        TableRow HeaderRow = new TableRow();
         
-     
+
 
 
         foreach (var v in rootJsonObject.collection)
         {
+            TableRow tr = new TableRow();
+            TableCell tc = new TableCell();
 
-            ListItem li = new ListItem(v.username + "   " + Convert.ToString(v.followers_count), Convert.ToString(v.followers_count));
-            ListBoxFollowers.Items.Add(li);
+ 
+
+            //ListItem li = new ListItem(v.username + "   " + Convert.ToString(v.followers_count), Convert.ToString(v.followers_count));
+            //ListBoxFollowers.Items.Add(li);
         }
 
     }

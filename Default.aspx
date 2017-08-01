@@ -50,8 +50,8 @@
         <div class="row text-center">
             <div class="col-md-2"></div>
             <div class="col-md-8 text-center topMargin">
-                <asp:XmlDataSource ID="XmlDataSourceFollowers" runat="server"></asp:XmlDataSource>
-                <asp:ListBox ID="ListBoxFollowers" runat="server" Height="80%" Width="80%" DataSourceID="XmlDataSourceFollowers"></asp:ListBox>
+                <asp:Table ID="TableFollowers" runat="server" CssClass="table-bordered" HorizontalAlign="Center">
+                </asp:Table>
             </div>
             <div class="col-md-2"></div>
         </div>
