@@ -50,7 +50,7 @@
         <div class="row text-center">
             <div class="col-md-2"></div>
             <div class="col-md-8 text-center topMargin">
-                <asp:Table ID="TableFollowers" runat="server" CssClass="table-bordered" HorizontalAlign="Center">
+                <asp:Table ID="TableFollowers" runat="server" CssClass="table-bordered" HorizontalAlign="Center" Height="100%" Width="100%">
                 </asp:Table>
             </div>
             <div class="col-md-2"></div>
