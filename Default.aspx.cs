@@ -33,8 +33,11 @@ public partial class _Default : System.Web.UI.Page
     //hardcoded url to the api call on my soundcloud
     string followersURL = "https://api-v2.soundcloud.com/users/2751638/followers?offset=1501312799270&limit=200&client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&app_version=1501594219";
 
+    //part of the url to keep track of
+    string urlPartClientIDAppVersion = "";
+
     //this is what we are getting back as a collection of "users"
-    List<Collection> scUserObjects;
+    List<Collection> scUserObjects = null;
 
     /// <summary>
     /// Page load callback
@@ -43,7 +46,8 @@ public partial class _Default : System.Web.UI.Page
     /// <param name="e"></param>
     protected void Page_Load(object sender, EventArgs e)
     {
-        scUserObjects = new List<Collection>();
+        if(scUserObjects == null)
+            scUserObjects= new List<Collection>();
     }
 
     /// <summary>
@@ -55,42 +59,73 @@ public partial class _Default : System.Web.UI.Page
     /// <param name="e"></param>
     protected void ButtonStart_Click(object sender, EventArgs e)
     {
-        //Reeset info color
+        //Validate input
+        if (!isValidURLInput(TextBoxProfileURL.Text))
+            return;
+
+        //First parse out some of the URL we need to append for later..
+        if (!SetUrlPartClientIDAppVersion())
+            return;
+        
+       
+        //Reset info color
         labelInfoID.ForeColor = System.Drawing.Color.Black;
-
-        //validate input is URL (could use better input validation here)
-        Uri uriResult;
-        bool isValidUrl = Uri.TryCreate(TextBoxProfileURL.Text, UriKind.Absolute, out uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-
-        if(!isValidUrl)
-        {
-            labelInfoID.ForeColor = System.Drawing.Color.Red;
-            labelInfoID.Text = "Invalid URL!";
-            return;
-        }
-
-        //First parse out some of the URL we need to append for later...
-        string urlPartClientIDAppVersion = "";
-        try
-        {
-            urlPartClientIDAppVersion = "&" + TextBoxProfileURL.Text.Split('&')[2];
-        }
-        catch(Exception ex)
-        {
-            labelInfoID.ForeColor = System.Drawing.Color.Red;
-            labelInfoID.Text = "Failed to parse URL information (Text.Split). Was the URL correct? <br><br>" + ex.Message + "<br><br>";
-            return;
-        }
-         
-
 
         //Clear obtained users 
         scUserObjects.Clear();
 
-        //Build table header row
-        SetUpTable();
+        //labelInfoID.Text = "Contacting Soundcloud... please wait...";
 
+        //Make actual web call and get data
+        MakeWebCallToSoundcloud();
+
+        //Set up some controls
+        //labelInfoID.Text = "Now sorting " + scUserObjects.Count + " followers";
+        labelInfoID.Text = "Found " + scUserObjects.Count + " followers!";
+
+
+        //Now sort the collection based on followers
+        scUserObjects.Sort((a, b) => b.followers_count.CompareTo(a.followers_count));
+
+        DisplayTable();
+
+    }
+
+   private void MakeWebCallToSoundcloud()
+    {
+        //Now do actual api calls
+        WebClient client = new WebClient();
+        string jsonData;                          //what we get back 
+        RootObject rootJsonObject;                //convert it into this
+        string hrefNext = TextBoxProfileURL.Text; //url to next resource
+
+        //Should be looping and jumping to next href until href is null (end of followers list)
+        do
+        {
+            //DownloadString() does GET on api url
+            //Soundcloud is nice enoungh to give us JSON
+            try
+            {
+                jsonData = client.DownloadString(new Uri(hrefNext));
+            }
+            catch (Exception ex)
+            {
+                labelInfoID.ForeColor = System.Drawing.Color.Red;
+                labelInfoID.Text = "Failed to download information (client.DownloadString()). Was the URL correct? <br><br>" + ex.Message + "<br><br>";
+                return;
+            }
+
+
+            //Deserailzie JSON into a known mapped object ("RootObject")
+            rootJsonObject = JsonConvert.DeserializeObject<RootObject>(jsonData);
+            //get next url
+            hrefNext = rootJsonObject.next_href + urlPartClientIDAppVersion;
+            //add to our collection
+            foreach (var b in rootJsonObject.collection)
+            {
+                scUserObjects.Add(b);
+            }
+        } while ((rootJsonObject.next_href != null));
 
 
         #region SC Testing code
@@ -136,104 +171,44 @@ public partial class _Default : System.Web.UI.Page
 
         #endregion SC Testing code
 
-
-
-        //Now do actual api calls
-        WebClient client = new WebClient(); 
-        string jsonData;                          //what we get back 
-        RootObject rootJsonObject;                //convert it into this
-        string hrefNext = TextBoxProfileURL.Text; //url to next resource
-
-        //Should be looping and jumping to next href until href is null (end of followers list)
-         do
-         {
-            //DownloadString() does GET on api url
-            //Soundcloud is nice enoungh to give us JSON
-            try
-            {
-                jsonData = client.DownloadString(hrefNext);
-            }
-            catch(Exception ex)
-            {
-                labelInfoID.ForeColor = System.Drawing.Color.Red;
-                labelInfoID.Text = "Failed to download information (client.DownloadString()). Was the URL correct? <br><br>" + ex.Message + "<br><br>";
-                return;
-            }
-           
-
-            //Deserailzie JSON into a known mapped object ("RootObject")
-            rootJsonObject = JsonConvert.DeserializeObject<RootObject>(jsonData);
-            //get next url
-            hrefNext = rootJsonObject.next_href + urlPartClientIDAppVersion;
-            //add to our collection
-            foreach (var b in rootJsonObject.collection)
-            {
-                scUserObjects.Add(b);
-            }
-        } while ((rootJsonObject.next_href != null));
-
-        //labelInfoID.Text = "Now sorting " + scUserObjects.Count + " followers";
-
-        //Now sort the collection based on followers
-        scUserObjects.Sort((a, b) => b.followers_count.CompareTo(a.followers_count));
-
-
-        //now run through what we got back from all the GET requets
-        foreach (var v in scUserObjects)
-        {
-
-            //add wanted data to table
-            TableRow tUserRow = new TableRow();
-
-            TableCell thcUserName = new TableCell();
-            thcUserName.Text = v.username;
-            thcUserName.Controls.Add(new LiteralControl(v.username));
-
-            TableCell thcFollowCount = new TableCell();
-            thcFollowCount.Text = Convert.ToString(v.followers_count);
-            thcFollowCount.Controls.Add(new LiteralControl(Convert.ToString(v.followers_count)));
-
-            TableCell thcURL = new TableCell();
-            thcURL.Text = v.permalink_url;
-            HyperLink artistHyperlink = new HyperLink();
-            artistHyperlink.Text = v.permalink_url.Substring(22);
-            artistHyperlink.NavigateUrl = v.permalink_url;
-            thcURL.Controls.Add(artistHyperlink);
-            //thcUserName.Text = v.permalink.Substring(22);   //22 just to cut out https://www.soundcloud.com
-
-            TableCell thcNumOfReposts = new TableCell();
-            thcNumOfReposts.Text = Convert.ToString(v.reposts_count);
-            thcNumOfReposts.Controls.Add(new LiteralControl(Convert.ToString(v.reposts_count)));
-
-            TableCell thcNumOfTracks = new TableCell();
-            thcNumOfTracks.Text = Convert.ToString(v.track_count);
-            thcNumOfTracks.Controls.Add(new LiteralControl(Convert.ToString(v.track_count)));
-
-            TableCell thcURLFullName = new TableCell();
-            thcURLFullName.Text = v.full_name;
-            thcURLFullName.Controls.Add(new LiteralControl(v.full_name));
-
-            //add em up!
-            tUserRow.Cells.Add(thcUserName);
-            tUserRow.Cells.Add(thcFollowCount);
-            tUserRow.Cells.Add(thcURL);
-            //tUserRow.Cells.Add(thcNumOfReposts);
-            tUserRow.Cells.Add(thcNumOfTracks);
-            tUserRow.Cells.Add(thcURLFullName);
-            TableFollowers.Rows.Add(tUserRow);
-
-        }
-
-        labelInfoID.Text = "Found " + scUserObjects.Count + " followers";
-
     }
 
-    /// <summary>
-    /// This just configures the TableFollowers table
-    /// By adding the proper header cells.
-    /// </summary>
-    private void SetUpTable()
+    private bool SetUrlPartClientIDAppVersion()
     {
+        try
+        {
+            urlPartClientIDAppVersion = "&" + TextBoxProfileURL.Text.Split('&')[2];
+            return true;
+        }
+        catch (Exception ex)
+        {
+            labelInfoID.ForeColor = System.Drawing.Color.Red;
+            labelInfoID.Text = "Failed to parse URL information (Text.Split). Was the URL correct? <br><br>" + ex.Message + "<br><br>";
+            return false;
+        }
+    }
+
+    private bool isValidURLInput(string inurl)
+    {
+        //validate input is URL (could use better input validation here)
+        Uri uriResult;
+        bool isValidUrl = Uri.TryCreate(inurl, UriKind.Absolute, out uriResult)
+            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+
+        if (!isValidUrl)
+        {
+            labelInfoID.ForeColor = System.Drawing.Color.Red;
+            labelInfoID.Text = "Invalid URL!";
+            return false;
+        }
+
+ 
+        return true;
+    }
+
+    private void DisplayTable()
+    {
+
         TableFollowers.Rows.Clear();
 
         //set up table row header and cells
@@ -271,7 +246,59 @@ public partial class _Default : System.Web.UI.Page
         HeaderRow.Cells.Add(thcTracksCount);
         HeaderRow.Cells.Add(thcURLFullName);
         TableFollowers.Rows.Add(HeaderRow);
+
+
+        //now populate the table
+
+        //now run through what we got back from all the GET requets
+        foreach (var v in scUserObjects)
+        {
+
+            //add wanted data to table
+            TableRow tUserRow = new TableRow();
+
+            TableCell tcUserName = new TableCell();
+            tcUserName.Text = v.username;
+            tcUserName.Controls.Add(new LiteralControl(v.username));
+
+            TableCell tcFollowCount = new TableCell();
+            tcFollowCount.Text = Convert.ToString(v.followers_count);
+            tcFollowCount.Controls.Add(new LiteralControl(Convert.ToString(v.followers_count)));
+
+            TableCell tcURL = new TableCell();
+            tcURL.Text = v.permalink_url;
+            HyperLink artistHyperlink = new HyperLink();
+            artistHyperlink.Text = v.permalink_url.Substring(22);
+            artistHyperlink.NavigateUrl = v.permalink_url;
+            tcURL.Controls.Add(artistHyperlink);
+            //thcUserName.Text = v.permalink.Substring(22);   //22 just to cut out https://www.soundcloud.com
+
+            TableCell tcNumOfReposts = new TableCell();
+            tcNumOfReposts.Text = Convert.ToString(v.reposts_count);
+            tcNumOfReposts.Controls.Add(new LiteralControl(Convert.ToString(v.reposts_count)));
+
+            TableCell tcNumOfTracks = new TableCell();
+            tcNumOfTracks.Text = Convert.ToString(v.track_count);
+            tcNumOfTracks.Controls.Add(new LiteralControl(Convert.ToString(v.track_count)));
+
+            TableCell tcURLFullName = new TableCell();
+            tcURLFullName.Text = v.full_name;
+            tcURLFullName.Controls.Add(new LiteralControl(v.full_name));
+
+            //add em up!
+            tUserRow.Cells.Add(tcUserName);
+            tUserRow.Cells.Add(tcFollowCount);
+            tUserRow.Cells.Add(tcURL);
+            //tUserRow.Cells.Add(thcNumOfReposts);
+            tUserRow.Cells.Add(tcNumOfTracks);
+            tUserRow.Cells.Add(tcURLFullName);
+            TableFollowers.Rows.Add(tUserRow);
+
+        }
     }
+
+
+
 
 
     //async Task<string> GetFollowersAsync(string inUrl)
@@ -279,5 +306,6 @@ public partial class _Default : System.Web.UI.Page
     //    WebClient client = new WebClient();
     //    return await client.DownloadString(inUrl);
     //}
+
 
 }

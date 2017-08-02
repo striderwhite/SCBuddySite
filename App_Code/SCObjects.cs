@@ -6,6 +6,8 @@ using System.Web;
 /// <summary>
 /// Summary description for SCObjects
 /// </summary>
+/// 
+[Serializable]
 public class SCObjects
 {
     public SCObjects()
@@ -19,12 +21,14 @@ public class SCObjects
 
 
 #region SC Object Clases
+[Serializable]
 public class Product
 {
     public string id { get; set; }
     public string name { get; set; }
 }
 
+[Serializable]
 public class CreatorSubscription
 {
     public Product product { get; set; }
@@ -32,6 +36,7 @@ public class CreatorSubscription
     public bool hug { get; set; }
 }
 
+[Serializable]
 public class Collection
 {
     public string avatar_url { get; set; }
@@ -64,6 +69,7 @@ public class Collection
     public object visuals { get; set; }
 }
 
+[Serializable]
 public class RootObject
 {
     public List<Collection> collection { get; set; }
