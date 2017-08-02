@@ -26,6 +26,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
+using System.Threading;
 
 public partial class _Default : System.Web.UI.Page
 {
@@ -46,8 +47,8 @@ public partial class _Default : System.Web.UI.Page
     /// <param name="e"></param>
     protected void Page_Load(object sender, EventArgs e)
     {
-        if(scUserObjects == null)
-            scUserObjects= new List<Collection>();
+        if (scUserObjects == null)
+            scUserObjects = new List<Collection>();
     }
 
     /// <summary>
@@ -59,6 +60,9 @@ public partial class _Default : System.Web.UI.Page
     /// <param name="e"></param>
     protected void ButtonStart_Click(object sender, EventArgs e)
     {
+
+
+
         //Validate input
         if (!isValidURLInput(TextBoxProfileURL.Text))
             return;
@@ -66,8 +70,8 @@ public partial class _Default : System.Web.UI.Page
         //First parse out some of the URL we need to append for later..
         if (!SetUrlPartClientIDAppVersion())
             return;
-        
-       
+
+
         //Reset info color
         labelInfoID.ForeColor = System.Drawing.Color.Black;
 
@@ -76,23 +80,26 @@ public partial class _Default : System.Web.UI.Page
 
         //labelInfoID.Text = "Contacting Soundcloud... please wait...";
 
-        //Make actual web call and get data
+        //Make actual web call and get data (updates ui after)
+        //Thread getFollowers = new Thread(MakeWebCallToSoundcloud);
+        //getFollowers.Start();
+
+        //labelInfoID.Text = "Getting followers... please wait...";
         MakeWebCallToSoundcloud();
 
-        //Set up some controls
-        //labelInfoID.Text = "Now sorting " + scUserObjects.Count + " followers";
-        labelInfoID.Text = "Found " + scUserObjects.Count + " followers!";
 
 
         //Now sort the collection based on followers
         scUserObjects.Sort((a, b) => b.followers_count.CompareTo(a.followers_count));
 
+        //Update UI
         DisplayTable();
 
     }
 
-   private void MakeWebCallToSoundcloud()
+    private void MakeWebCallToSoundcloud()
     {
+
         //Now do actual api calls
         WebClient client = new WebClient();
         string jsonData;                          //what we get back 
@@ -126,6 +133,14 @@ public partial class _Default : System.Web.UI.Page
                 scUserObjects.Add(b);
             }
         } while ((rootJsonObject.next_href != null));
+
+        //Set up some controls
+        //labelInfoID.Text = "Now sorting " + scUserObjects.Count + " followers";
+        labelInfoID.Visible = true;
+        labelInfoID.Text = "Found " + scUserObjects.Count + " followers!";
+
+
+
 
 
         #region SC Testing code
@@ -202,7 +217,7 @@ public partial class _Default : System.Web.UI.Page
             return false;
         }
 
- 
+
         return true;
     }
 

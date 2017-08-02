@@ -13,66 +13,96 @@
             </div>
         </div>
         <hr />
-        <!--                     PROFLILE URL ROW                     -->
-        <div class="row text-center">
-            <div class="col-md-4">
-            </div>
-            <div class="col-md-4 text-center topMargin well">
-                <asp:label id="LabelInfo" runat="server" text="Enter page URL"></asp:label>
-            </div>
-            <div class="col-md-4"></div>
-        </div>
 
-        <!--                     PROFLILE URL ROW                     -->
+        <!-- ************************************************************* -->
+        <!--                       ENTER URL LABEL DIV                           -->
+        <!-- ************************************************************* -->
         <div class="row text-center">
             <div class="col-md-4">
             </div>
             <div class="col-md-4 text-center topMargin">
-                <asp:textbox id="TextBoxProfileURL" runat="server" width="80%">https://api-v2.soundcloud.com/users/2751638/followers?offset=1501312799270&amp;limit=200&amp;client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&amp;app_version=1501594219</asp:textbox>
+                <asp:Label ID="LabelInfo" runat="server" Text="Enter page URL"></asp:Label>
             </div>
             <div class="col-md-4"></div>
+        </div>
+
+        <!-- ************************************************************* -->
+        <!--                       ENTER URL TEXTBOX DIV                           -->
+        <!-- ************************************************************* -->
+        <div class="row text-center">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-10 text-center topMargin">
+                <asp:TextBox ID="TextBoxProfileURL" runat="server" Width="100%" CssClass="enjoy-cssTextbox">https://api-v2.soundcloud.com/users/2751638/followers?offset=1501312799270&amp;limit=200&amp;client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&amp;app_version=1501594219</asp:TextBox>
+            </div>
+            <div class="col-md-1"></div>
         </div>
         <hr />
         <br />
-        <!--                    INFO                    -->
-        <div class="row text-center">
-            <div class="col-md-2"></div>
-            <div class="col-md-8 text-center topMargin">
-                <asp:label runat="server" text="Waiting..." id="labelInfoID" cssclass="well well-sm"></asp:label>
-                <br />
-                <br />
-            </div>
-            <div class="col-md-2">
-            </div>
-        </div>
-        <hr />
 
 
-        <!--                    START ROW                     -->
-        <div class="row text-center">
-            <div class="col-md-4"></div>
-            <div class="col-md-4 text-center topMargin">
-                <br />
-                <asp:Button ID="ButtonStart" runat="server" Text="Start!" OnClick="ButtonStart_Click" CssClass="enjoy-css" /><br /><br /><br />
+        <asp:ScriptManager ID="ScriptManagerFollowers" runat="server"></asp:ScriptManager>
+        <asp:UpdateProgress runat="server"></asp:UpdateProgress>
+        <asp:UpdatePanel ID="UpdatePanelGetFollowers" runat="server" RenderMode="Block">
+            <ContentTemplate>
 
-            </div>
-            <div class="col-md-4">
-            </div>
-        </div>
-        <hr />
+                <!-- ************************************************************* -->
+                <!--                       "GO" BUTTON DIV                       -->
+                <!-- ************************************************************* -->
+                <div class="row text-center">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 text-center topMargin">
+                        <br />
+                        <asp:Button ID="ButtonStart" runat="server" Text="Start!" OnClick="ButtonStart_Click" CssClass="enjoy-css" Height="80%" Width="80%" /><br />
+                        <br />
+                        <br />
 
-        <!--                    INFO ROW                     -->
-        <div class="row text-center">
-            <div class="col-md-2"></div>
-            <div class="col-md-8 text-center topMargin">
+                    </div>
+                    <div class="col-md-4">
+                    </div>
+                </div>
+                <hr />
+
+                <asp:UpdateProgress ID="UpdateProgressFollowers" runat="server">
+                    <ProgressTemplate>
+                        <div class="text-center">
+                            <asp:Label runat="server" Text="Getting Followers... Please Wait..." ID="labelInfoID2" CssClass="well well-sm"></asp:Label>
+                            <br />
+                            <br />
+                            <br />
+                            <asp:Image ID="ImageGifTest" runat="server" ImageUrl="~/Content/IMG/ajax-loader.gif" ImageAlign="Middle" Height="50px" Width="50px" CssClass="img" />
+                            <br />
+                        </div>
+                    </ProgressTemplate>
+                </asp:UpdateProgress>
+
+                <!-- ************************************************************* -->
+                <!--                       INFO LABEL DIV                           -->
+                <!-- ************************************************************* -->
+                <div class="row text-center">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8 text-center topMargin">
+                        <asp:Label runat="server" Text="" ID="labelInfoID" CssClass="well well-sm" Visible="False"></asp:Label>
+                        <br />
+
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+                <hr />
+
+                <!-- ************************************************************* -->
+                <!--                       TABLE DIV                          -->
+                <!-- ************************************************************* -->
+
                 <asp:Table ID="TableFollowers" runat="server" CssClass="datagrid table table-bordered table-hover table-condensed" CellPadding="1" CellSpacing="1" GridLines="Both">
                 </asp:Table>
-            </div>
-            <div class="col-md-2"></div>
-        </div>
-        <hr />
+                <hr />
+            </ContentTemplate>
+
+        </asp:UpdatePanel>
+
+
     </div>
-
-
 </asp:Content>
 
