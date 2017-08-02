@@ -32,7 +32,7 @@ public partial class _Default : System.Web.UI.Page
 {
 
     //hardcoded url to the api call on my soundcloud
-    string followersURL = "https://api-v2.soundcloud.com/users/2751638/followers?offset=1501312799270&limit=200&client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&app_version=1501594219";
+    string followersURL = "https://api-v2.soundcloud.com/users/2751638/followers?offset=1501351687918&limit=200&client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&app_version=1501667839";
 
     //part of the url to keep track of
     string urlPartClientIDAppVersion = "";
@@ -47,8 +47,30 @@ public partial class _Default : System.Web.UI.Page
     /// <param name="e"></param>
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (scUserObjects == null)
-            scUserObjects = new List<Collection>();
+        scUserObjects = new List<Collection>();
+
+        //if (scUserObjects == null)
+        //    scUserObjects = new List<Collection>();
+
+        //if (!IsPostBack)
+        //{
+        //    scUserObjects = new List<Collection>();
+        //    ViewState.Add("scUserObjects", scUserObjects);
+        //}
+        //else
+        //{
+        //    scUserObjects = (List<Collection>)ViewState["scUserObjects"];
+        //    System.Diagnostics.Debug.WriteLine("scUserObjects " + scUserObjects.Count);
+        //}
+        //if(ViewState["scUserObjects"] != null)
+        //{
+        //    scUserObjects = (List<Collection>) ViewState["scUserObjects"];
+        //    System.Diagnostics.Debug.WriteLine("scUserObjects " + scUserObjects.Count);
+        //}
+        //else
+        //{
+        //    ViewState.Add("scUserObjects", scUserObjects);
+        //}
     }
 
     /// <summary>
@@ -88,9 +110,11 @@ public partial class _Default : System.Web.UI.Page
         MakeWebCallToSoundcloud();
 
 
+        //System.Diagnostics.Debug.WriteLine("Hit " + scUserObjects.Count);
 
-        //Now sort the collection based on followers
-        scUserObjects.Sort((a, b) => b.followers_count.CompareTo(a.followers_count));
+        //Show buttons on panel
+        PanelOptions.Visible = true;
+
 
         //Update UI
         DisplayTable();
@@ -140,9 +164,17 @@ public partial class _Default : System.Web.UI.Page
         labelInfoID.Text = "Found " + scUserObjects.Count + " followers!";
 
 
+        //Save state
+        //try
+        //{
+        //    ViewState["scUserObjects"] = scUserObjects;
+        //}
+        //catch (Exception ex)
+        //{
+        //    System.Diagnostics.Debug.WriteLine(ex.Message);
+        //}
 
-
-
+        //System.Diagnostics.Debug.WriteLine("Hit here");
         #region SC Testing code
         ////************* testing code here **********
         //var url = "https://soundcloud.com/strider_white/followers";
@@ -216,13 +248,12 @@ public partial class _Default : System.Web.UI.Page
             labelInfoID.Text = "Invalid URL!";
             return false;
         }
-
-
         return true;
     }
 
     private void DisplayTable()
     {
+        //scUserObjects = (List<Collection>)ViewState["scUserObjects"];
 
         TableFollowers.Rows.Clear();
 
@@ -308,12 +339,8 @@ public partial class _Default : System.Web.UI.Page
             tUserRow.Cells.Add(tcNumOfTracks);
             tUserRow.Cells.Add(tcURLFullName);
             TableFollowers.Rows.Add(tUserRow);
-
         }
     }
-
-
-
 
 
     //async Task<string> GetFollowersAsync(string inUrl)
@@ -322,5 +349,32 @@ public partial class _Default : System.Web.UI.Page
     //    return await client.DownloadString(inUrl);
     //}
 
+
+
+    protected void ButtonExportCSV_Click(object sender, EventArgs e)
+    {
+
+    }
+
+
+    protected void ButtonSoryByFollowCount_Click(object sender, EventArgs e)
+    {
+        //scUserObjects = (List<Collection>)ViewState["scUserObjects"];
+        //Now sort the collection based on followers
+        System.Diagnostics.Debug.WriteLine("Sorting by followers... " + scUserObjects.Count);
+
+        scUserObjects.Sort((a, b) => b.followers_count.CompareTo(a.followers_count));
+        DisplayTable();
+    }
+
+
+    private void Page_Error(object sender, EventArgs e)
+    {
+        Exception exc = Server.GetLastError();
+
+        labelInfoID.Text = "An error occurred on this page.<br>" + exc.Message;
+        // Clear the error from the server.
+        Server.ClearError();
+    }
 
 }

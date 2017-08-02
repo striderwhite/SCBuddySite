@@ -33,7 +33,7 @@
             <div class="col-md-1">
             </div>
             <div class="col-md-10 text-center topMargin">
-                <asp:TextBox ID="TextBoxProfileURL" runat="server" Width="100%" CssClass="enjoy-cssTextbox">https://api-v2.soundcloud.com/users/2751638/followers?offset=1501312799270&amp;limit=200&amp;client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&amp;app_version=1501594219</asp:TextBox>
+                <asp:TextBox ID="TextBoxProfileURL" runat="server" Width="100%" CssClass="enjoy-cssTextbox">https://api-v2.soundcloud.com/users/2751638/followers?offset=1501351687918&amp;limit=200&amp;client_id=JlZIsxg2hY5WnBgtn3jfS0UYCl0K8DOg&amp;app_version=1501667839</asp:TextBox>
             </div>
             <div class="col-md-1"></div>
         </div>
@@ -41,7 +41,7 @@
         <br />
 
 
-        <asp:ScriptManager ID="ScriptManagerFollowers" runat="server"></asp:ScriptManager>
+        <asp:ScriptManager ID="ScriptManagerFollowers" runat="server" AsyncPostBackTimeout="120"></asp:ScriptManager>
         <asp:UpdateProgress runat="server"></asp:UpdateProgress>
         <asp:UpdatePanel ID="UpdatePanelGetFollowers" runat="server" RenderMode="Block">
             <ContentTemplate>
@@ -53,10 +53,9 @@
                     <div class="col-md-4"></div>
                     <div class="col-md-4 text-center topMargin">
                         <br />
-                        <asp:Button ID="ButtonStart" runat="server" Text="Start!" OnClick="ButtonStart_Click" CssClass="enjoy-css" Height="80%" Width="80%" /><br />
+                        <asp:Button ID="ButtonStart" runat="server" Text="Start!" OnClick="ButtonStart_Click" CssClass="feedback-button" Height="80%" Width="80%" /><br />
                         <br />
                         <br />
-
                     </div>
                     <div class="col-md-4">
                     </div>
@@ -66,7 +65,7 @@
                 <asp:UpdateProgress ID="UpdateProgressFollowers" runat="server">
                     <ProgressTemplate>
                         <div class="text-center">
-                            <asp:Label runat="server" Text="Getting Followers... Please Wait..." ID="labelInfoID2" CssClass="well well-sm"></asp:Label>
+                            <asp:Label runat="server" Text="Getting Followers... Please Wait..." ID="labelInfoID2"></asp:Label>
                             <br />
                             <br />
                             <br />
@@ -94,6 +93,14 @@
                 <!-- ************************************************************* -->
                 <!--                       TABLE DIV                          -->
                 <!-- ************************************************************* -->
+
+                <asp:Panel ID="PanelOptions" runat="server" Visible="False">
+                    <asp:Button ID="ButtonExportCSV" runat="server" CssClass="enjoy-css-B2" OnClick="ButtonExportCSV_Click" Text="Export Data" />
+                    <asp:Button ID="ButtonSoryByFollowCount" runat="server" CssClass="enjoy-css-B2" OnClick="ButtonSoryByFollowCount_Click" Text="Sort by follow count" />
+                    <asp:Button ID="ButtonSortByFollowDate" runat="server" CssClass="enjoy-css-B2" Text="Sort by follow date" />
+                    <asp:Button ID="ButtonSortBytTracksPosted" runat="server" CssClass="enjoy-css-B2" Text="Sort by tracks posted" />
+                </asp:Panel>
+                <br />
 
                 <asp:Table ID="TableFollowers" runat="server" CssClass="datagrid table table-bordered table-hover table-condensed" CellPadding="1" CellSpacing="1" GridLines="Both">
                 </asp:Table>
